@@ -3,8 +3,12 @@ inventory = pd.read_csv("C:/Users/aliam/Software-Project/Pharmacy-Software-Syste
 #Drug inventory features selection
 inventory.drop(['Date', 'Price Changed', 'Company', 'Region', 'Price_prev', 'Search Query'] ,axis=1, inplace=True)
 #Drug inventory dimensionality reduction
-inventory=inventory[inventory.Price>10]
-inventory.drop_duplicates(subset='Drugname', keep='first', inplace=False)
+def split_keep_first(w):
+    if isinstance(w, str):
+        splits = w.split(' ', 1)
+        return splits[0] 
+inventory['Drugname'] = inventory['Drugname'].apply(split_keep_first)
+inventory= inventory.drop_duplicates(subset='Drugname', keep='first', inplace=False)
 #Drug inventory attribute generation
 inventory['ID'] = inventory.index
 #Save new drug inventory dataset path
