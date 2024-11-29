@@ -13,7 +13,7 @@ header {
     padding: 20px;
     background-color: #e3f2fd;
     border-bottom: 2px solid #90caf9;
-    flex-wrap: wrap;  /* Allow header to wrap if needed */
+    flex-wrap: wrap;
 }
 
 header img {
@@ -26,11 +26,20 @@ header h1 {
     color: #1565c0;
 }
 
+
+.mid-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 header form {
     display: flex;
     gap: 10px;
     align-items: center;
-    margin: 0 auto;  /* Center the form */
+    width: 100%;
+    max-width: 600px; 
 }
 
 header input {
@@ -38,6 +47,7 @@ header input {
     font-size: 1rem;
     border: 1px solid #90caf9;
     border-radius: 5px;
+    flex-grow: 1;
 }
 
 header button {
@@ -54,13 +64,14 @@ header button:hover {
     background-color: #0d47a1;
 }
 
-header .cart-section {
+
+.cart-section {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* Cart Button and Dropdown */
+
 .cart-section button {
     padding: 10px 20px;
     background-color: #1565c0;
@@ -100,12 +111,12 @@ header .cart-section {
     cursor: pointer;
 }
 
-/* Layout for the main content */
+
 main {
     padding: 20px;
 }
 
-/* Styles for the Medicine List */
+
 .medicine-list {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -163,7 +174,7 @@ main {
     background-color: #0d47a1;
 }
 
-/* Footer Styles */
+
 footer {
     text-align: center;
     padding: 20px;
@@ -172,7 +183,7 @@ footer {
     color: #1565c0;
 }
 
-/* Cart Page Styles */
+
 .cart-section {
     padding: 20px;
     background-color: #f9f9f9;
@@ -237,7 +248,7 @@ footer {
     background-color: #0d47a1;
 }
 
-/* Checkout Page Styles */
+
 .checkout-section {
     text-align: center;
     padding: 40px;
