@@ -1,0 +1,61 @@
+# Byte-compiled Python files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables file
+.env
+
+# Virtual environment directory
+venv/
+.venv/
+
+# Flask instance folder (if used)
+instance/
+
+# SQLite database files
+*.db
+*.sqlite3
+
+# Pytest cache and test artifacts
+.pytest_cache/
+*.pytest_cache
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.sublime-workspace
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Python-specific
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Static files (if dynamically generated)
+staticfiles/
+
+# Migrations (if using Flask-Migrate)
+migrations/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# Node modules (if using npm for frontend assets)
+node_modules/
+
+# Other temporary files
+*.bak
+*.swp
+*.tmp

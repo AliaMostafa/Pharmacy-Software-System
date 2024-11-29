@@ -1,0 +1,71 @@
+/* General Reset */
+body,
+html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #e6f2ff;
+    /* Light blue background */
+}
+
+/* Login/Register Container */
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.login-container h2 {
+    color: #0056b3;
+    /* Dark blue for heading */
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #0056b3;
+    /* Dark blue background for button */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.login-container button:hover {
+    background-color: #003d80;
+    /* Darker blue on hover */
+}
+
+.login-links {
+    margin-top: 15px;
+}
+
+.login-links a {
+    display: block;
+    color: #0056b3;
+    /* Dark blue for links */
+    text-decoration: none;
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.login-links a:hover {
+    text-decoration: underline;
+}
