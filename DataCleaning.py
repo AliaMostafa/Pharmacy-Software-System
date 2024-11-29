@@ -12,4 +12,4 @@ inventory= inventory.drop_duplicates(subset='Drugname', keep='first', inplace=Fa
 #Drug inventory attribute generation
 inventory['ID'] = inventory.index
 #Save new drug inventory dataset path
-inventory.to_csv('C:\Users\aliam\Software-Project\Pharmacy-Software-System\data_Cleaned&Reduced.csv')
+inventory.to_csv('C:/Users/aliam/Software-Project/Pharmacy-Software-System/data_Cleaned&Reduced.csv')
