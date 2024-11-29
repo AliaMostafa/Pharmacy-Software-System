@@ -12,18 +12,19 @@
 <body>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-sm" style="max-width: 400px; width: 100%;">
-            <h2 class="text-center mb-4">Login</h2>
-            <form method="POST" action="{{ url_for('login') }}">
+            <h2 class="text-center mb-4">Welcome Back</h2>
+            <form method="POST" action="/login">
                 <div class="mb-3">
                     <input type="email" class="form-control" placeholder="Email" name="email" required>
                 </div>
                 <div class="mb-3">
                     <input type="password" class="form-control" placeholder="Password" name="password" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Login</button>
+                <button type="submit" class="btn btn-primary w-100 mb-3">Log In</button>
             </form>
-            <div class="login-links mt-3 text-center">
-                <!-- Add any additional links here -->
+            <div class="text-center">
+                <p class="mb-0">Don't have an account?</p>
+                <a href="/register" class="btn btn-success w-100">Create One</a>
             </div>
         </div>
     </div>
