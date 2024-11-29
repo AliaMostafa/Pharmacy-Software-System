@@ -1,4 +1,4 @@
-NU Pharmacy - Flask Web Application
+#NU Pharmacy - Flask Web Application
 Description
 NU Pharmacy is a web-based platform that allows users to search for medicines, add them to a cart, and proceed to checkout. This application is built with Flask as the backend framework and uses HTML and CSS for the front-end.
 
