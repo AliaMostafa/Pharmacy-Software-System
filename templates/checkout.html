@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Checkout</title>
+</head>
+<body>
+    <header>
+        <h1>Thank You for Your Purchase!</h1>
+    </header>
+
+    <main>
+        <section class="checkout-section">
+            <p>Your order has been placed successfully. Your cart is now empty.</p>
+            <a href="{{ url_for('home') }}">
+                <button class="return-home-btn">Return to Home</button>
+            </a>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Pharmacy</p>
+    </footer>
+</body>
+</html>
