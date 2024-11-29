@@ -166,25 +166,23 @@ footer {
     border-radius: 5px;
     cursor: pointer;
 }
-/* Style for the Remove button */
+
 .remove-item {
     background-color: #d32f2f;
     color: white;
     padding: 5px 10px;
     font-size: 1rem;
-    border: none; /* Remove border */
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Change cursor to pointer */
-    margin-left: 10px; /* Space between item text and the button */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
 }
 
-/* Hover effect for Remove button */
 .remove-item:hover {
-    background-color: #c62828; /* Darker red on hover */
-    transform: scale(1.1); /* Slightly increase size on hover */
+    background-color: #c62828;
+    transform: scale(1.1);
 }
 
-/* You can adjust font size further if you want a larger/smaller button */
 .remove-item {
-    font-size: 1.1rem; /* Adjust the font size to your preference */
+    font-size: 1.1rem;
 }
