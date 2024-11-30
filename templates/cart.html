@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Cart</title>
 </head>
 <body>
@@ -20,7 +21,7 @@
                         <li class="cart-item">
                             <span>{{ item['drugname'] }} - {{ item['price'] }} EGP</span>
                             <a href="{{ url_for('remove_from_cart_route', index=loop.index0) }}">
-                                <button class="remove-item">Remove</button>
+                                <button class="remove-item"><i class="fas fa-trash"></i> Remove</button> <!-- Trash Icon -->
                             </a>
                         </li>
                     {% endfor %}
@@ -28,7 +29,7 @@
                 <p class="total-sum">Total: {{ total_sum }} EGP</p>
                 <div class="checkout-button">
                     <a href="{{ url_for('checkout') }}">
-                        <button>Checkout</button>
+                        <button><i class="fas fa-check-circle"></i> Checkout</button> <!-- Checkout Icon -->
                     </a>
                 </div>
             {% else %}

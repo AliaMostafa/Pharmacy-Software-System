@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>NU Pharmacy</title>
     <link rel="icon" href="{{ url_for('static', filename='logo-1.png') }}" type="image/png">
 </head>
@@ -14,25 +15,21 @@
             <img src="{{ url_for('static', filename='logo-1.png') }}" alt="Pharmacy Logo" class="logo">
             <h1>NU Pharmacy</h1>
         </div>
-        
 
         <div class="mid-section">
             <form method="GET" action="{{ url_for('search') }}">
                 <input type="text" name="query" placeholder="Search medicines...">
-                <button type="submit">Search</button>
+                <button type="submit"><i class="fas fa-search"></i></button> <!-- Search Icon -->
             </form>
         </div>
 
-
         <div class="filter">
-
             <select name="category">
                 <option value="">All Categories</option>
                 <option value="Painkiller">Painkiller</option>
                 <option value="Antibiotic">Antibiotic</option>
                 <option value="Vitamin">Vitamin</option>
             </select>
-
 
             <select name="price">
                 <option value="">All Prices</option>
@@ -41,7 +38,6 @@
                 <option value="101-200">101 - 200</option>
             </select>
 
-
             <select name="form">
                 <option value="">All Forms</option>
                 <option value="Tablet">Tablet</option>
@@ -49,14 +45,12 @@
                 <option value="Capsule">Capsule</option>
             </select>
         </div>
-        
 
         <div class="cart-section">
             <a href="{{ url_for('cart') }}">
-                <button id="cart-button">Cart ({{ session.get('cart', []) | length }})</button>
+                <button id="cart-button"><i class="fas fa-shopping-cart"></i> Cart ({{ session.get('cart', []) | length }})</button> <!-- Cart Icon -->
             </a>
         </div>
-        
 
         <div>
             {% for drug in drugs %}
@@ -81,7 +75,7 @@
                         <p>Form: {{ medicine.form }}</p>
                         <p>Category: {{ medicine.category }}</p>
                         <a href="{{ url_for('add_to_cart_route', id=medicine.id) }}">
-                            <button class="add-to-cart">Add to Cart</button>
+                            <button class="add-to-cart"><i class="fas fa-cart-plus"></i> Add to Cart</button> <!-- Add to Cart Icon -->
                         </a>
                     </div>
                 {% endfor %}
