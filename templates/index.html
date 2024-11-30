@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>NU Pharmacy</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo-1.png') }}" type="image/png">
+</head>
+<body>
+    <header>
+        <div class="left-section">
+            <img src="{{ url_for('static', filename='logo-1.png') }}" alt="Pharmacy Logo" class="logo">
+            <h1>NU Pharmacy</h1>
+        </div>
+        <div class="mid-section">
+            <form method="GET" action="{{ url_for('search') }}">
+                <input type="text" name="query" placeholder="Search medicines...">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+        
+        <div class="cart-section">
+            <a href="{{ url_for('cart') }}">
+                <button id="cart-button">Cart ({{ session.get('cart', []) | length }})</button>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section class="drug-list">
+            {% if drugs %}
+                {% for drug in drugs %}
+                    <div class="drug-item">
+                        <h2>{{ drug.drugname }}</h2>
+                        <p>Price: {{ drug.price }} EGP</p>
+                        <p>Form: {{ drug.form }}</p>
+                        <p>Category: {{ drug.category }}</p>
+                        <a href="{{ url_for('add_to_cart_route', id=drug.id) }}">
+                            <button class="add-to-cart">Add to Cart</button>
+                        </a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No drugs found.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Pharmacy</p>
+    </footer>
+</body>
+</html>

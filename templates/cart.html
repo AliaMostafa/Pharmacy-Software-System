@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Cart</title>
+</head>
+<body>
+    <header>
+        <h1>Your Cart</h1>
+    </header>
+
+    <main>
+        <section class="cart-section">
+            {% if cartitems %}
+                <ul id="cart-items">
+                    {% for item in cartitems %}
+                        <li class="cartitems">
+                            <span>{{ item['drugname'] }} - {{ item['price'] }} EGP</span>
+                            <a href="{{ url_for('remove_from_cart_route', index=loop.index0) }}">
+                                <button class="remove-item">Remove</button>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <p class="total-cost"> Total: {{ total_cost }}  EGP</p>
+                <div class="checkout-button">
+                    <a href="{{ url_for('checkout') }}">
+                        <button>Checkout</button>
+                    </a>
+                </div>
+            {% else %}
+                <p>Your cart is empty.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Pharmacy</p>
+    </footer>
+</body>
+</html>
