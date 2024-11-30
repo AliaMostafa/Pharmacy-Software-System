@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from models import db, User, Medicine
 import hashlib
 import os
 from functools import wraps
@@ -7,14 +8,13 @@ from datetime import timedelta
 import pandas as pd
 
 app = Flask(__name__)
-app.secret_key = "secretkey123"  # For flash messages
-
-# Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.secret_key = "secretkey123"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pharmacy.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
-db = SQLAlchemy(app)
+db.init_app(app)
+migrate = Migrate(app, db)
 
 def hash_password(password: str) -> str:
     """Hash password using SHA256"""
@@ -27,14 +27,6 @@ def verify_password(password: str, stored_hash: str) -> bool:
     salt = bytes.fromhex(stored_hash[:64])  
     hash_obj = hashlib.sha256(salt + password.encode('utf-8'))
     return stored_hash[64:] == hash_obj.hexdigest()
-
-# User model
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(100), nullable=False)
-    last_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(256), nullable=False)  
 
 # Login required decorator
 def login_required(f):
@@ -123,32 +115,65 @@ def register():
 
     return render_template('register.html')
 
-# Medicine class to hold medicine attributes
-class Medicine:
-    def __init__(self, drugname, price, search_query, form, category, id):
-        self.drugname = drugname
-        self.price = price
-        self.search_query = search_query
-        self.form = form
-        self.category = category
-        self.id = id
-
 # Load medicines from CSV
 def load_medicines_from_csv():
     csv_file_path = os.path.join(os.path.dirname(__file__), 'data_Cleaned&Reduced.csv')
-    df = pd.read_csv(csv_file_path, dtype={'Price': float, 'ID': int})
-    medicines = []
-    for index, row in df.iterrows():
-        medicine = Medicine(
-            drugname=row['Drugname'],
-            price=row['Price'],
-            search_query=row.get('Search Query', ''),
-            form=row['Form'],
-            category=row['Category'],
-            id=row['ID']
-        )
-        medicines.append(medicine)
-    return medicines
+    
+    # Read CSV more efficiently
+    df = pd.read_csv(
+        csv_file_path,
+        dtype={
+            'Price': float,
+            'ID': int,
+            'Drugname': str,
+            'Form': str,
+            'Category': str
+        },
+        usecols=['Drugname', 'Price', 'Form', 'Category']  # Only load needed columns
+    )
+    
+    # Clean dataframe efficiently
+    df = df.fillna({
+        'Drugname': 'Unknown',
+        'Price': 0.0,
+        'Form': 'Unknown',
+        'Category': 'Other'
+    })
+
+    # Pre-process strings
+    df['Drugname'] = df['Drugname'].str.strip()
+    df['Form'] = df['Form'].str.strip()
+    df['Category'] = df['Category'].str.strip()
+
+    # Batch size for bulk inserts
+    BATCH_SIZE = 1000
+    total_rows = len(df)
+    
+    with app.app_context():
+        try:
+            for start in range(0, total_rows, BATCH_SIZE):
+                end = min(start + BATCH_SIZE, total_rows)
+                batch = df.iloc[start:end]
+                
+                medicines = [
+                    Medicine(
+                        drugname=row['Drugname'],
+                        price=float(row['Price']),
+                        form=row['Form'],
+                        category=row['Category']
+                    )
+                    for _, row in batch.iterrows()
+                ]
+                
+                db.session.bulk_save_objects(medicines)
+                db.session.commit()
+                
+                print(f"Processed {end}/{total_rows} records")
+                
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error during bulk insert: {str(e)}")
+            raise
 
 # Add item to cart (stored in session)
 def add_to_cart(medicine_name, medicine_price):
@@ -168,25 +193,45 @@ def remove_from_cart(index):
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    medicines = load_medicines_from_csv()
-    # Format prices to 2 decimal places
-    for medicine in medicines:
-        medicine.price = f"{medicine.price:.2f}"
+    medicines = Medicine.query.all()
     return render_template('index.html', medicines=medicines)
 
-@app.route('/search', methods=['GET'])
+@app.route('/search')
 def search():
-    query = request.args.get('query', '').lower()
-    medicines = load_medicines_from_csv()
-    filtered_medicines = [m for m in medicines if query in (str(m.drugname) + str(m.search_query)).lower()]
-    return render_template('index.html', medicines=filtered_medicines)
+    query = request.args.get('query', '')
+    category = request.args.get('category', '')
+    price_range = request.args.get('price', '')
+    form = request.args.get('form', '')
+
+    # Start with base query
+    medicines_query = Medicine.query
+
+    # Apply search filter if query exists
+    if query:
+        medicines_query = medicines_query.filter(Medicine.drugname.ilike(f'%{query}%'))
+    
+    # Apply category filter
+    if category:
+        medicines_query = medicines_query.filter(Medicine.category == category)
+    
+    # Apply form filter
+    if form:
+        medicines_query = medicines_query.filter(Medicine.form == form)
+    
+    # Apply price range filter
+    if price_range:
+        low, high = map(int, price_range.split('-'))
+        medicines_query = medicines_query.filter(Medicine.price.between(low, high))
+
+    # Execute query
+    medicines = medicines_query.all()
+    
+    return render_template('index.html', medicines=medicines)
 
 @app.route('/add_to_cart/<int:id>')
 def add_to_cart_route(id):
-    medicines = load_medicines_from_csv()
-    medicine = next((m for m in medicines if m.id == id), None)
-    if medicine:
-        add_to_cart(medicine.drugname, str(medicine.price))
+    medicine = Medicine.query.get_or_404(id)
+    add_to_cart(medicine.drugname, str(medicine.price))
     return redirect(url_for('dashboard'))
 
 @app.route('/remove_from_cart/<int:index>')
@@ -211,9 +256,5 @@ def index():
     return redirect(url_for('dashboard'))
 
 # Initialize the database
-with app.app_context():
-    db.create_all()
-    
-
 if __name__ == '__main__':
     app.run(debug=True)

@@ -24,26 +24,33 @@
         </div>
 
         <div class="filter">
-            <select name="category">
-                <option value="">All Categories</option>
-                <option value="Painkiller">Painkiller</option>
-                <option value="Antibiotic">Antibiotic</option>
-                <option value="Vitamin">Vitamin</option>
-            </select>
+            <form method="GET" action="{{ url_for('search') }}" class="filter-form">
+                <!-- Keep existing search query if any -->
+                <input type="hidden" name="query" value="{{ request.args.get('query', '') }}">
+                
+                <select name="category">
+                    <option value="">All Categories</option>
+                    <option value="Painkiller" {% if request.args.get('category') == 'Painkiller' %}selected{% endif %}>Painkiller</option>
+                    <option value="Antibiotic" {% if request.args.get('category') == 'Antibiotic' %}selected{% endif %}>Antibiotic</option>
+                    <option value="Vitamin" {% if request.args.get('category') == 'Vitamin' %}selected{% endif %}>Vitamin</option>
+                </select>
 
-            <select name="price">
-                <option value="">All Prices</option>
-                <option value="0-50">0 - 50</option>
-                <option value="51-100">51 - 100</option>
-                <option value="101-200">101 - 200</option>
-            </select>
+                <select name="price">
+                    <option value="">All Prices</option>
+                    <option value="0-50" {% if request.args.get('price') == '0-50' %}selected{% endif %}>0 - 50</option>
+                    <option value="51-100" {% if request.args.get('price') == '51-100' %}selected{% endif %}>51 - 100</option>
+                    <option value="101-200" {% if request.args.get('price') == '101-200' %}selected{% endif %}>101 - 200</option>
+                </select>
 
-            <select name="form">
-                <option value="">All Forms</option>
-                <option value="Tablet">Tablet</option>
-                <option value="Syrup">Syrup</option>
-                <option value="Capsule">Capsule</option>
-            </select>
+                <select name="form">
+                    <option value="">All Forms</option>
+                    <option value="Tablet" {% if request.args.get('form') == 'Tablet' %}selected{% endif %}>Tablet</option>
+                    <option value="Syrup" {% if request.args.get('form') == 'Syrup' %}selected{% endif %}>Syrup</option>
+                    <option value="Capsule" {% if request.args.get('form') == 'Capsule' %}selected{% endif %}>Capsule</option>
+                </select>
+
+                <button type="submit">Apply Filters</button>
+            </form>
         </div>
 
         <div class="cart-section">
