@@ -179,8 +179,34 @@ def load_medicines_from_csv():
 def add_to_cart(medicine_name, medicine_price):
     if 'cart' not in session:
         session['cart'] = []
-    # Create a new item dictionary to add to the cart
-    new_item = {'drugname': medicine_name, 'price': medicine_price}
+    
+    try:
+        # Clean and validate price
+        # Remove extra decimal points, keep only first occurrence
+        cleaned_price = medicine_price.split('.')[0]
+        if len(medicine_price.split('.')) > 1:
+            cleaned_price += '.' + medicine_price.split('.')[1]
+        price = float(cleaned_price)
+    except (ValueError, AttributeError):
+        # If price conversion fails, default to 0
+        price = 0.0
+    
+    # Check if medicine already in cart
+    for item in session['cart']:
+        if item['drugname'] == medicine_name:
+            item['quantity'] = item.get('quantity', 1) + 1
+            item['price'] = price
+            item['subtotal'] = float(item['quantity'] * price)
+            session.modified = True
+            return
+    
+    # Add new item
+    new_item = {
+        'drugname': medicine_name,
+        'price': price,
+        'quantity': 1,
+        'subtotal': price
+    }
     session['cart'].append(new_item)
     session.modified = True
 
@@ -233,17 +259,38 @@ def add_to_cart_route(id):
     medicine = Medicine.query.get_or_404(id)
     add_to_cart(medicine.drugname, str(medicine.price))
     return redirect(url_for('dashboard'))
-
-@app.route('/remove_from_cart/<int:index>')
-def remove_from_cart_route(index):
-    remove_from_cart(index)
+# Route to remove a single unit of an item from the cart
+@app.route('/remove_one_from_cart/<int:index>', methods=['GET', 'POST'])
+def remove_one_from_cart(index):
+    cart = session.get('cart', [])
+    if 0 <= index < len(cart):
+        cart[index]['quantity'] -= 1
+        # Update the subtotal
+        cart[index]['subtotal'] = cart[index]['quantity'] * cart[index]['price']
+        # If quantity reaches zero, remove the item entirely
+        if cart[index]['quantity'] <= 0:
+            cart.pop(index)
+        session['cart'] = cart
+        session.modified = True
     return redirect(url_for('cart'))
+
+# Route to remove all units of an item from the cart
+@app.route('/remove_all_from_cart/<int:index>', methods=['GET', 'POST'])
+def remove_all_from_cart(index):
+    cart = session.get('cart', [])
+    if 0 <= index < len(cart):
+        cart.pop(index)
+        session['cart'] = cart
+        session.modified = True
+    return redirect(url_for('cart'))
+
 
 @app.route('/cart')
 def cart():
     cart_items = session.get('cart', [])
-    total_sum = sum(float(item['price']) for item in cart_items)
+    total_sum = sum(item['subtotal'] for item in cart_items)  # Use subtotal
     return render_template('cart.html', cart_items=cart_items, total_sum=total_sum)
+
 
 @app.route('/checkout')
 def checkout():
