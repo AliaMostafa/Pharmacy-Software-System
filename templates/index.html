@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>NU Pharmacy</title>
     <link rel="icon" href="{{ url_for('static', filename='logo-1.png') }}" type="image/png">
 </head>
@@ -15,72 +14,37 @@
             <img src="{{ url_for('static', filename='logo-1.png') }}" alt="Pharmacy Logo" class="logo">
             <h1>NU Pharmacy</h1>
         </div>
-
         <div class="mid-section">
             <form method="GET" action="{{ url_for('search') }}">
                 <input type="text" name="query" placeholder="Search medicines...">
-                <button type="submit"><i class="fas fa-search"></i></button> <!-- Search Icon -->
+                <button type="submit">Search</button>
             </form>
         </div>
-
-        <div class="filter">
-            <select name="category">
-                <option value="">All Categories</option>
-                <option value="Painkiller">Painkiller</option>
-                <option value="Antibiotic">Antibiotic</option>
-                <option value="Vitamin">Vitamin</option>
-            </select>
-
-            <select name="price">
-                <option value="">All Prices</option>
-                <option value="0-50">0 - 50</option>
-                <option value="51-100">51 - 100</option>
-                <option value="101-200">101 - 200</option>
-            </select>
-
-            <select name="form">
-                <option value="">All Forms</option>
-                <option value="Tablet">Tablet</option>
-                <option value="Syrup">Syrup</option>
-                <option value="Capsule">Capsule</option>
-            </select>
-        </div>
-
+        
         <div class="cart-section">
             <a href="{{ url_for('cart') }}">
-                <button id="cart-button"><i class="fas fa-shopping-cart"></i> Cart ({{ session.get('cart', []) | length }})</button> <!-- Cart Icon -->
+                <button id="cart-button">Cart ({{ session.get('cart', []) | length }})</button>
             </a>
         </div>
-
-        <div>
-            {% for drug in drugs %}
-            <div class="drug-item">
-                <h3>{{ drug.name }}</h3>
-                <p>Category: {{ drug.category }}</p>
-                <p>Price: ${{ drug.price }}</p>
-                <p>Form: {{ drug.form }}</p>
-            </div>
-            {% endfor %}
-        </div>
-
+        
     </header>
 
     <main>
-        <section class="medicine-list">
-            {% if medicines %}
-                {% for medicine in medicines %}
-                    <div class="medicine-item">
-                        <h2>{{ medicine.drugname }}</h2>
-                        <p>Price: {{ medicine.price }} EGP</p>
-                        <p>Form: {{ medicine.form }}</p>
-                        <p>Category: {{ medicine.category }}</p>
-                        <a href="{{ url_for('add_to_cart_route', id=medicine.id) }}">
-                            <button class="add-to-cart"><i class="fas fa-cart-plus"></i> Add to Cart</button> <!-- Add to Cart Icon -->
+        <section class="drug-list">
+            {% if drugs %}
+                {% for drug in drugs %}
+                    <div class="drug-item">
+                        <h2>{{ drug.drugname }}</h2>
+                        <p>Price: {{ drug.price }} EGP</p>
+                        <p>Form: {{ drug.form }}</p>
+                        <p>Category: {{ drug.category }}</p>
+                        <a href="{{ url_for('add_to_cart_route', id=drug.id) }}">
+                            <button class="add-to-cart">Add to Cart</button>
                         </a>
                     </div>
                 {% endfor %}
             {% else %}
-                <p>No medicines found.</p>
+                <p>No drugs found.</p>
             {% endif %}
         </section>
     </main>

@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Checkout</title>
 </head>
 <body>
@@ -17,7 +16,7 @@
         <section class="checkout-section">
             <p>Your order has been placed successfully. Your cart is now empty.</p>
             <a href="{{ url_for('home') }}">
-                <button class="return-home-btn"><i class="fas fa-home"></i> Return to Home</button> <!-- Home Icon -->
+                <button class="return-home-btn">Return to Home</button>
             </a>
         </section>
     </main>
