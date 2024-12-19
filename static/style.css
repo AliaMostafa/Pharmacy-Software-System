@@ -1,10 +1,20 @@
-/* General styles for the website */
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f0f7ff;
+    
+    
+    overflow: scroll;
+    -ms-overflow-style: none;
 }
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+
 
 header {
     display: flex;
@@ -25,7 +35,6 @@ header h1 {
     font-size: 2rem;
     color: #1565c0;
 }
-
 
 .mid-section {
     flex: 1;
@@ -64,13 +73,11 @@ header button:hover {
     background-color: #0d47a1;
 }
 
-
 .cart-section {
     display: flex;
     align-items: center;
     gap: 10px;
 }
-
 
 .cart-section button {
     padding: 10px 20px;
@@ -83,8 +90,8 @@ header button:hover {
 
 #cart-dropdown {
     position: absolute;
-    bottom: 20px; /* Distance from the bottom */
-    right: 20px; /* Distance from the right */
+    bottom: 20px;
+    right: 20px;
     background-color: white;
     border: 1px solid #90caf9;
     padding: 10px;
@@ -151,18 +158,38 @@ header button:hover {
     cursor: pointer;
 }
 
-
 main {
     padding: 20px;
 }
 
-
+/* Drug List Section */
 .drug-list {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(var(--grid-columns, 3), 1fr); 
     gap: 30px;
 }
 
+.grid-control {
+    margin-bottom: 20px;
+}
+
+.grid-control label {
+    font-size: 1.6em;
+    margin-right: 10px;
+    color: #1565c0;
+    font-weight: bold;
+}
+
+.grid-control select {
+    padding: 10px;
+    font-size: 1.4em;
+    background:#f0f7ff;
+    border: none;
+    cursor: pointer;
+    
+}
+
+/* Responsive Layout */
 @media (max-width: 768px) {
     .drug-list {
         grid-template-columns: repeat(2, 1fr);
@@ -174,7 +201,6 @@ main {
         grid-template-columns: 1fr;
     }
 }
-
 
 .drug-item {
     background: white;
@@ -188,10 +214,10 @@ main {
 }
 
 .drug-item:hover {
-    transform: scale(1.05);
+    transform: scale(1.10);
 }
 
-.drug-itemh2 {
+.drug-item h2 {
     font-size: 1.5rem;
     color: #1565c0;
 }
@@ -215,8 +241,6 @@ main {
     background-color: #0d47a1;
 }
 
-
-
 footer {
     text-align: center;
     padding: 20px;
@@ -224,73 +248,6 @@ footer {
     border-top: 2px solid #90caf9;
     color: #1565c0;
 }
-
-
-.cart-section {
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    max-width: 900px;
-    margin: 20px auto;
-}
-
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-    padding: 10px;
-    background-color: white;
-    border: 1px solid #e3f2fd;
-    border-radius: 5px;
-    font-size: 1.2rem;
-}
-
-.cart-item span {
-    flex-grow: 1;
-}
-
-.remove-item {
-    background-color: #d32f2f;
-    color: white;
-    padding: 5px 10px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.remove-item:hover {
-    background-color: #c62828;
-}
-
-.total-sum {
-    font-weight: bold;
-    font-size: 1.5rem;
-    text-align: right;
-    margin-top: 20px;
-}
-
-.checkout-button {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.checkout-button button {
-    padding: 10px 20px;
-    background-color: #1565c0;
-    color: white;
-    font-size: 1.2rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.checkout-button button:hover {
-    background-color: #0d47a1;
-}
-
-
 .checkout-section {
     text-align: center;
     padding: 40px;
@@ -299,11 +256,10 @@ footer {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     max-width: 600px;
     margin: 40px auto;
-}
-
-.checkout-section p {
-    font-size: 1.3rem;
-    margin-bottom: 30px;
+    display: flex;           
+    flex-direction: column;   
+    justify-content: center;  
+    align-items: center;     
 }
 
 .return-home-btn {
@@ -314,9 +270,15 @@ footer {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    text-decoration: none;  
+    text-align: center;     
+    margin-top: 20px;       
 }
 
 .return-home-btn:hover {
     background-color: #0d47a1;
 }
 
+.return-home-btn:active {
+    transform: scale(0.98);
+}
