@@ -25,6 +25,12 @@
                 <button id="cart-button">Cart ({{ session.get('cart', []) | length }})</button>
             </a>
         </div>
+        <div class="header-buttons">
+            
+            <a href="{{ url_for('home') }}">
+                <button class="logout-btn">Log Out</button>
+            </a>
+        </div>
     </header>
 
     <main>
