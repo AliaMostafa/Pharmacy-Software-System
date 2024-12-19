@@ -32,7 +32,6 @@ header h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
 }
 
 header form {
@@ -66,41 +65,12 @@ header button:hover {
 }
 
 
-.filter {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-    padding: 10px;
-    width: 100%;
-    max-width: 600px;
-    
-}
-
-.filter select {
-    padding: 10px;
-    font-size: 1rem;
-    border-radius: 5px;
-    border: 1px solid #90caf9;
-    background-color: white;
-    width: 100%;
-    max-width: 180px;
-}
-
-.filter select:hover {
-    background-color: #f1f1f1;
-}
-
-.filter select:focus {
-    outline-color: #1565c0;
-}
-
-
 .cart-section {
     display: flex;
     align-items: center;
     gap: 10px;
 }
+
 
 .cart-section button {
     padding: 10px 20px;
@@ -113,8 +83,8 @@ header button:hover {
 
 #cart-dropdown {
     position: absolute;
-    top: 30px;
-    right: 150px;
+    bottom: 20px; /* Distance from the bottom */
+    right: 20px; /* Distance from the right */
     background-color: white;
     border: 1px solid #90caf9;
     padding: 10px;
@@ -132,6 +102,46 @@ header button:hover {
     margin-bottom: 10px;
 }
 
+/*V1.6*/
+.home-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f5f5f5;
+    margin: 0;
+}
+
+.home-page-button {
+    text-align: center;
+}
+
+.home-page-button a {
+    text-decoration: none; 
+}
+
+.home-page-button button {
+    background-color: #1565c0; 
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.home-page-button button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+.home-page-button button:active {
+    transform: scale(1);
+    opacity: 0.9;
+}
+
+
 #checkout-button {
     padding: 10px;
     background-color: #0d47a1;
@@ -147,26 +157,26 @@ main {
 }
 
 
-.medicine-list {
+.drug-list {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;
 }
 
 @media (max-width: 768px) {
-    .medicine-list {
+    .drug-list {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 480px) {
-    .medicine-list {
+    .drug-list {
         grid-template-columns: 1fr;
     }
 }
 
 
-.medicine-item {
+.drug-item {
     background: white;
     border: 1px solid #90caf9;
     border-radius: 8px;
@@ -177,21 +187,21 @@ main {
     font-size: 1.2rem;
 }
 
-.medicine-item:hover {
+.drug-item:hover {
     transform: scale(1.05);
 }
 
-.medicine-item h2 {
+.drug-itemh2 {
     font-size: 1.5rem;
     color: #1565c0;
 }
 
-.medicine-item p {
+.drug-item p {
     font-size: 1.2rem;
     margin: 10px 0;
 }
 
-.medicine-item button {
+.drug-item button {
     padding: 10px;
     font-size: 1rem;
     background-color: #1565c0;
@@ -201,9 +211,10 @@ main {
     cursor: pointer;
 }
 
-.medicine-item button:hover {
+.drug-item button:hover {
     background-color: #0d47a1;
 }
+
 
 
 footer {
@@ -308,3 +319,4 @@ footer {
 .return-home-btn:hover {
     background-color: #0d47a1;
 }
+
