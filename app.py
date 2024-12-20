@@ -5,6 +5,7 @@ import hashlib
 import os
 from functools import wraps
 from datetime import timedelta
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 
 
 app = Flask(__name__)
@@ -40,6 +41,15 @@ def login_required(f):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Routes
 
@@ -81,9 +91,9 @@ def login():
 
 # Logout Route
 @app.route('/logout')
+@login_required
 def logout():
-    session.pop('user_id', None)
-    flash('Logged out successfully')
+    logout_user()
     return redirect(url_for('login'))
 
 # Register Route
@@ -194,6 +204,7 @@ def remove_from_cart(index):
         session.modified = True
 
 @app.route('/dashboard')
+@login_required
 def dashboard():
     # Get filter parameters
     search_query = request.args.get('search', '').strip()

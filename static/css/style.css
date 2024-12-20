@@ -736,4 +736,243 @@ footer {
 .add-to-cart:active {
     transform: translateY(1px);
 }
+
+/* Add these styles for the profile menu */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-menu {
+    position: relative;
+}
+
+.profile-button {
+    background: #f0f2f5;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #1b74e4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    transition: background-color 0.2s;
+}
+
+.profile-button:hover {
+    background-color: #e4e6eb;
+}
+
+.profile-button svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 1000;
+    padding: 8px 0;
+}
+
+.profile-menu:hover .profile-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+.profile-dropdown:before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+}
+
+.dropdown-header {
+    padding: 8px 16px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.user-info:hover {
+    background-color: #f0f2f5;
+}
+
+.user-info svg {
+    color: #1b74e4;
+}
+
+.user-info span {
+    font-weight: 500;
+    color: #050505;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #dadde1;
+    margin: 8px 0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: #050505;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f2f5;
+}
+
+.dropdown-item svg {
+    color: #65676b;
+}
+
+/* Cart button styles */
+.cart-button {
+    position: relative;
+    background: #f0f2f5;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #1b74e4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.cart-button:hover {
+    background-color: #e4e6eb;
+}
+
+.cart-button svg {
+    width: 24px;
+    height: 24px;
+}
+
+.cart-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #e41e3f;
+    color: white;
+    border-radius: 50%;
+    padding: 1px 5px;
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Update the profile button and cart button styles to be consistent */
+.profile-button {
+    background: #f0f2f5;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #1b74e4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    transition: background-color 0.2s;
+}
+
+.profile-button svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.cart-button {
+    position: relative;
+    background: #f0f2f5;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #1b74e4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.cart-button svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Shared styles for both buttons */
+.profile-button,
+.cart-button {
+    background: #f0f2f5;
+    border: none;
+    cursor: pointer;
+    color: #1b74e4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 42px;     /* Exact same size */
+    height: 42px;    /* Exact same size */
+    padding: 0;      /* Remove padding */
+    transition: background-color 0.2s;
+}
+
+/* Shared styles for SVGs */
+.profile-button svg,
+.cart-button svg {
+    width: 24px;     /* Exact same size */
+    height: 24px;    /* Exact same size */
+}
+
+/* Cart specific styles */
+.cart-button {
+    position: relative;
+    text-decoration: none;
+}
+
+/* Hover states */
+.profile-button:hover,
+.cart-button:hover {
+    background-color: #e4e6eb;
+}
   </rewritten_file>
