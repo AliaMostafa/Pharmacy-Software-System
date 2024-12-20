@@ -1,20 +1,23 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_migrate import Migrate
 from models import db, User, Medicine
 import hashlib
 import os
 from functools import wraps
 from datetime import timedelta
-import pandas as pd
+
 
 app = Flask(__name__)
 app.secret_key = "secretkey123"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pharmacy.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:new_password@localhost:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 db.init_app(app)
 migrate = Migrate(app, db)
+
+with app.app_context():
+    db.create_all()
 
 def hash_password(password: str) -> str:
     """Hash password using SHA256"""
@@ -179,34 +182,8 @@ def load_medicines_from_csv():
 def add_to_cart(medicine_name, medicine_price):
     if 'cart' not in session:
         session['cart'] = []
-    
-    try:
-        # Clean and validate price
-        # Remove extra decimal points, keep only first occurrence
-        cleaned_price = medicine_price.split('.')[0]
-        if len(medicine_price.split('.')) > 1:
-            cleaned_price += '.' + medicine_price.split('.')[1]
-        price = float(cleaned_price)
-    except (ValueError, AttributeError):
-        # If price conversion fails, default to 0
-        price = 0.0
-    
-    # Check if medicine already in cart
-    for item in session['cart']:
-        if item['drugname'] == medicine_name:
-            item['quantity'] = item.get('quantity', 1) + 1
-            item['price'] = price
-            item['subtotal'] = float(item['quantity'] * price)
-            session.modified = True
-            return
-    
-    # Add new item
-    new_item = {
-        'drugname': medicine_name,
-        'price': price,
-        'quantity': 1,
-        'subtotal': price
-    }
+    # Create a new item dictionary to add to the cart
+    new_item = {'drugname': medicine_name, 'price': medicine_price}
     session['cart'].append(new_item)
     session.modified = True
 
@@ -217,10 +194,48 @@ def remove_from_cart(index):
         session.modified = True
 
 @app.route('/dashboard')
-@login_required
 def dashboard():
-    medicines = Medicine.query.all()
-    return render_template('index.html', medicines=medicines)
+    # Get filter parameters
+    search_query = request.args.get('search', '').strip()
+    category_filter = request.args.get('category', '')
+    price_filter = request.args.get('price', '')
+    form_filter = request.args.get('form', '')
+
+    # Base query
+    query = Medicine.query
+
+    # Apply search filter
+    if search_query:
+        query = query.filter(Medicine.drugname.ilike(f'%{search_query}%'))
+
+    # Apply category filter
+    if category_filter:
+        query = query.filter(Medicine.category == category_filter)
+
+    # Apply form filter
+    if form_filter:
+        query = query.filter(Medicine.form == form_filter)
+
+    # Apply price range filter
+    if price_filter:
+        if price_filter == '0-100':
+            query = query.filter(Medicine.price <= 100)
+        elif price_filter == '100-200':
+            query = query.filter(Medicine.price.between(100, 200))
+        elif price_filter == '200-300':
+            query = query.filter(Medicine.price.between(200, 300))
+        elif price_filter == '300+':
+            query = query.filter(Medicine.price > 300)
+
+    # Execute query
+    medicines = query.all()
+
+    return render_template('index.html', 
+                         medicines=medicines,
+                         search_query=search_query,
+                         category_filter=category_filter,
+                         price_filter=price_filter,
+                         form_filter=form_filter)
 
 @app.route('/search')
 def search():
@@ -259,44 +274,146 @@ def add_to_cart_route(id):
     medicine = Medicine.query.get_or_404(id)
     add_to_cart(medicine.drugname, str(medicine.price))
     return redirect(url_for('dashboard'))
-# Route to remove a single unit of an item from the cart
-@app.route('/remove_one_from_cart/<int:index>', methods=['GET', 'POST'])
-def remove_one_from_cart(index):
-    cart = session.get('cart', [])
-    if 0 <= index < len(cart):
-        cart[index]['quantity'] -= 1
-        # Update the subtotal
-        cart[index]['subtotal'] = cart[index]['quantity'] * cart[index]['price']
-        # If quantity reaches zero, remove the item entirely
-        if cart[index]['quantity'] <= 0:
-            cart.pop(index)
-        session['cart'] = cart
-        session.modified = True
-    return redirect(url_for('cart'))
 
-# Route to remove all units of an item from the cart
-@app.route('/remove_all_from_cart/<int:index>', methods=['GET', 'POST'])
-def remove_all_from_cart(index):
-    cart = session.get('cart', [])
-    if 0 <= index < len(cart):
-        cart.pop(index)
-        session['cart'] = cart
-        session.modified = True
+@app.route('/remove_from_cart/<int:index>')
+def remove_from_cart_route(index):
+    remove_from_cart(index)
     return redirect(url_for('cart'))
-
 
 @app.route('/cart')
 def cart():
     cart_items = session.get('cart', [])
-    total_sum = sum(item['subtotal'] for item in cart_items)  # Use subtotal
-    return render_template('cart.html', cart_items=cart_items, total_sum=total_sum)
-
+    
+    # Calculate total by summing up all subtotals
+    total_sum = sum(item['price'] * item['quantity'] for item in cart_items)
+    
+    # Format total to 2 decimal places
+    total_sum = "{:.1f}".format(total_sum)
+    
+    return render_template('cart.html', 
+                         cart_items=cart_items, 
+                         total_sum=total_sum)
 
 @app.route('/checkout')
 def checkout():
-    # For simplicity, we clear the cart after checkout
-    session.pop('cart', None)
-    return render_template('checkout.html')
+    if 'cart' not in session or not session['cart']:
+        flash('Your cart is empty!')
+        return redirect(url_for('dashboard'))
+    
+    try:
+        # Update stock for each item in cart
+        for item in session['cart']:
+            medicine = Medicine.query.get(item['id'])
+            if medicine:
+                # Check if we have enough stock
+                if medicine.stock < item['quantity']:
+                    flash(f'Not enough stock for {medicine.drugname}!')
+                    return redirect(url_for('cart'))
+                
+                # Decrease stock
+                medicine.stock -= item['quantity']
+        
+        # Commit changes to database
+        db.session.commit()
+        
+        # Clear the cart
+        session.pop('cart', None)
+        flash('Thank you for your purchase!')
+        return redirect(url_for('dashboard'))
+    
+    except Exception as e:
+        db.session.rollback()
+        flash('An error occurred during checkout!')
+        print(f"Checkout error: {str(e)}")
+        return redirect(url_for('cart'))
+
+@app.route('/remove_one/<int:medicine_id>')
+def remove_one(medicine_id):
+    if 'cart' in session:
+        cart_item = next((item for item in session['cart'] 
+                         if item['id'] == medicine_id), None)
+        if cart_item:
+            if cart_item['quantity'] > 1:
+                cart_item['quantity'] -= 1
+                cart_item['subtotal'] = cart_item['quantity'] * float(cart_item['price'])
+            else:
+                session['cart'].remove(cart_item)
+            session.modified = True
+    return redirect(url_for('cart'))
+
+@app.route('/remove_all/<int:medicine_id>')
+def remove_all(medicine_id):
+    if 'cart' in session:
+        session['cart'] = [item for item in session['cart'] 
+                          if item['id'] != medicine_id]
+        session.modified = True
+    return redirect(url_for('cart'))
+
+@app.route('/add-to-cart/<int:medicine_id>', methods=['POST'])
+def add_to_cart(medicine_id):
+    try:
+        # Initialize cart if it doesn't exist
+        if 'cart' not in session:
+            session['cart'] = []
+        
+        medicine = Medicine.query.get_or_404(medicine_id)
+        
+        # Check if medicine is in stock
+        if medicine.stock <= 0:
+            flash('Sorry, this medicine is out of stock!')
+            return redirect(url_for('dashboard'))
+        
+        # Check if item already in cart
+        cart_item = next((item for item in session['cart'] 
+                         if item['id'] == medicine_id), None)
+        
+        if cart_item:
+            # Check if we can add more based on stock
+            if cart_item['quantity'] < medicine.stock:
+                cart_item['quantity'] += 1
+                cart_item['subtotal'] = cart_item['quantity'] * float(medicine.price)
+        else:
+            # Add new item to cart
+            session['cart'].append({
+                'id': medicine_id,
+                'drugname': medicine.drugname,
+                'price': float(medicine.price),
+                'quantity': 1,
+                'subtotal': float(medicine.price)
+            })
+        
+        # Make sure the session knows it's been modified
+        session.modified = True
+        
+        # Return JSON response for AJAX update (optional)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'cart_count': len(session['cart'])})
+            
+        # Get the search and filter parameters from the form
+        search = request.form.get('search', '')
+        category = request.form.get('category', '')
+        price = request.form.get('price', '')
+        form = request.form.get('form', '')
+        
+        # Construct the query string for redirect
+        query_params = {}
+        if search: query_params['search'] = search
+        if category: query_params['category'] = category
+        if price: query_params['price'] = price
+        if form: query_params['form'] = form
+        
+        # Redirect back to dashboard with all parameters preserved
+        return redirect(url_for('dashboard', **query_params))
+        
+    except Exception as e:
+        print(f"Error adding to cart: {str(e)}")
+        flash('Error adding item to cart')
+        return redirect(url_for('dashboard'))
+
+# Add this route to get cart count
+@app.route('/cart-count')
+def cart_count():
+    return jsonify({'count': len(session.get('cart', []))})
 
 @app.route('/')
 def index():

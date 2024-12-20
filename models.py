@@ -10,9 +10,11 @@ class User(db.Model):
     password = db.Column(db.String(256), nullable=False)
 
 class Medicine(db.Model):
+    __tablename__ = 'products'
+    
     id = db.Column(db.Integer, primary_key=True)
-    drugname = db.Column(db.String(200), nullable=False)
-    price = db.Column(db.Float, nullable=False)
-    search_query = db.Column(db.String(200))
-    form = db.Column(db.String(100))
+    drugname = db.Column(db.String(100))
+    price = db.Column(db.Numeric(10, 2))
+    stock = db.Column(db.Integer)
+    form = db.Column(db.String(50))
     category = db.Column(db.String(100))

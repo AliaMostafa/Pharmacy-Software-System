@@ -216,128 +216,68 @@ footer {
 
 
 .cart-section {
-    padding: 30px;
+    padding: 20px;
     background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 40px auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.cart-header {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #1565c0;
-    text-align: center;
-    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    margin: 20px auto;
 }
 
 .cart-item {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 20px;
+    margin: 10px 0;
+    padding: 10px;
     background-color: white;
     border: 1px solid #e3f2fd;
-    border-radius: 10px;
-    gap: 15px;
-}
-
-.cart-item-left {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    flex-grow: 1;
-}
-
-.cart-item h4 {
-    font-size: 1.4rem;
-    color: #1565c0;
-    margin: 0;
+    border-radius: 5px;
+    font-size: 1.2rem;
 }
 
 .cart-item span {
-    font-size: 1.1rem;
-    color: #333;
+    flex-grow: 1;
 }
 
-.cart-item-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.remove-one-item {
-    background-color: #fdd835;
-    color: #333;
-    padding: 8px 12px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.remove-one-item:hover {
-    background-color: #fbc02d;
-}
-
-.remove-all-item {
+.remove-item {
     background-color: #d32f2f;
     color: white;
-    padding: 8px 12px;
+    padding: 5px 10px;
     font-size: 1rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 5px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.remove-all-item:hover {
+.remove-item:hover {
     background-color: #c62828;
 }
 
-.total-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1.6rem;
+.total-sum {
     font-weight: bold;
+    font-size: 1.5rem;
+    text-align: right;
     margin-top: 20px;
-    padding: 20px;
-    background-color: #e3f2fd;
-    border-radius: 8px;
-    border: 1px solid #90caf9;
 }
 
 .checkout-button {
-    display: flex;
-    justify-content: flex-end;
+    text-align: center;
     margin-top: 20px;
 }
 
 .checkout-button button {
-    padding: 12px 25px;
+    padding: 10px 20px;
     background-color: #1565c0;
     color: white;
     font-size: 1.2rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
 .checkout-button button:hover {
     background-color: #0d47a1;
 }
-
 
 
 .checkout-section {
