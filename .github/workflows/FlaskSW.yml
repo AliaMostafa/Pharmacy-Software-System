@@ -44,4 +44,4 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:new_password@localhost:5432/postgres
         run: |
-          pytest tests/test_app
+          pytest tests/test_app.py
