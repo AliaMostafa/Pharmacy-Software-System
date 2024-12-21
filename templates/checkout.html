@@ -37,22 +37,22 @@
                         </div>
                     </div>
 
+                    <div class="order-summary">
+                        <h2>Order Summary</h2>
+                        {% for item in cart_items %}
+                        <div class="summary-item">
+                            <span>{{ item.medicine.drugname }} x {{ item.quantity }}</span>
+                            <span>{{ "%.1f"|format(item.medicine.price * item.quantity) }} EGP</span>
+                        </div>
+                        {% endfor %}
+                        <div class="total">
+                            <span>Total:</span>
+                            <span>{{ "%.1f"|format(total_sum) }} EGP</span>
+                        </div>
+                    </div>
+
                     <button type="submit" class="place-order-btn">Place Order</button>
                 </form>
-            </div>
-
-            <div class="order-summary">
-                <h2>Order Summary</h2>
-                {% for item in cart_items %}
-                <div class="summary-item">
-                    <span>{{ item.medicine.drugname }} x {{ item.quantity }}</span>
-                    <span>{{ "%.1f"|format(item.medicine.price * item.quantity) }} EGP</span>
-                </div>
-                {% endfor %}
-                <div class="total">
-                    <span>Total:</span>
-                    <span>{{ "%.1f"|format(total_sum) }} EGP</span>
-                </div>
             </div>
         </div>
     </div>
