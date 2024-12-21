@@ -6,7 +6,13 @@
 </head>
 <body>
     <div class="checkout-page">
-        <h1>Checkout</h1>
+        <div class="page-header">
+            <h1>Checkout</h1>
+            <div class="navigation-buttons">
+                <a href="{{ url_for('cart') }}" class="nav-btn return-cart">Return to Cart</a>
+                <a href="{{ url_for('dashboard') }}" class="nav-btn return-dashboard">Return to Dashboard</a>
+            </div>
+        </div>
 
         <div class="main-container">
             <div class="shipping-info">
