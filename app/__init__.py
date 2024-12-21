@@ -11,7 +11,7 @@ def create_app(test_config=None):
     if test_config is None:
         # Default configuration
         app.config['SECRET_KEY'] = 'your-secret-key'
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/postgres3.0'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:new_password@localhost:5432/postgres3.0'
     else:
         # Override with test config
         app.config.update(test_config)

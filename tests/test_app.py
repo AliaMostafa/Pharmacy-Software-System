@@ -15,7 +15,7 @@ def test_app():
     app = create_app()
     app.config.update({
         "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:postgres@localhost:5432/postgres3.0",
+        "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:new_password@localhost:5432/postgres3.0",
         "WTF_CSRF_ENABLED": False,
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
     })
