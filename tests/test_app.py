@@ -39,7 +39,7 @@ def test_1_user_registration(app_context, client):
     Expected: 
         - Status code 200
         - Successful registration
-    """
+    """ 
     response = client.post('/register', data={
         'email': 'test@test.com',
         'password': 'password123',
