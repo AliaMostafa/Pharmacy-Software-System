@@ -3,10 +3,10 @@ name: Test SW Flask
 on:
   push:
     branches:
-      - nourfrontend
+      - main
   pull_request:
     branches:
-      - nourfrontend
+      - main
 
 jobs:
   test:
