@@ -8,32 +8,47 @@
     <div class="cart-page">
         <div class="cart-header">
             <h1>Cart</h1>
-            <a href="{{ url_for('dashboard') }}" class="back-btn">Back to Dashboard</a>
+            <a href="{{ url_for('dashboard') }}" class="back-to-dashboard">Back to Dashboard</a>
         </div>
 
-        <div class="cart-container">
-            {% if cart_items %}
+        {% if cart_items %}
+        <div class="main-container">
+            <div class="cart-items">
                 {% for item in cart_items %}
                 <div class="cart-item">
-                    <h2 class="item-name">{{ item.drugname }}</h2>
-                    <div class="item-details">
-                        <p>Price: {{ item.price }} EGP</p>
-                        <p>Quantity: x{{ item.quantity }}</p>
-                        <p>Subtotal: {{ "%.1f"|format(item.price * item.quantity) }} EGP</p>
-                        <p>Available Stock: {{ item.stock }}</p>
+                    <div class="medicine-info">
+                        <div class="medicine-name">
+                            <h3>{{ item.medicine.drugname }}</h3>
+                        </div>
+                        <div class="medicine-details">
+                            <div class="detail-group">
+                                <span class="label">Price:</span>
+                                <span class="value">{{ item.medicine.price }} EGP</span>
+                            </div>
+                            <div class="detail-group">
+                                <span class="label">Quantity:</span>
+                                <span class="value">x{{ item.quantity }}</span>
+                            </div>
+                            <div class="detail-group">
+                                <span class="label">Subtotal:</span>
+                                <span class="value">{{ "%.1f"|format(item.medicine.price * item.quantity) }} EGP</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="item-actions">
-                        <a href="{{ url_for('remove_one', medicine_id=item.id) }}" class="remove-one">Remove One</a>
-                        <a href="{{ url_for('remove_all', medicine_id=item.id) }}" class="remove-all">Remove All</a>
+                    <div class="action-buttons">
+                        <a href="{{ url_for('remove_one', medicine_id=item.medicine.id) }}" class="btn btn-warning">Remove One</a>
+                        <a href="{{ url_for('remove_all', medicine_id=item.medicine.id) }}" class="btn btn-danger">Remove All</a>
                     </div>
                 </div>
                 {% endfor %}
+            </div>
 
-                <div class="order-summary">
-                    <h3>Order Summary</h3>
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+                <div class="summary-details">
                     <div class="summary-row">
                         <span>Subtotal</span>
-                        <span>{{ total_sum }} EGP</span>
+                        <span>{{ "%.1f"|format(total_sum) }} EGP</span>
                     </div>
                     <div class="summary-row">
                         <span>Shipping</span>
@@ -41,19 +56,29 @@
                     </div>
                     <div class="summary-row total">
                         <span>Total</span>
-                        <span>{{ total_sum }} EGP</span>
+                        <span>{{ "%.1f"|format(total_sum) }} EGP</span>
                     </div>
-                    <form action="{{ url_for('checkout') }}" method="POST">
-                        <button type="submit" class="checkout">Proceed to Checkout</button>
-                    </form>
                 </div>
-            {% else %}
-                <div class="empty-cart">
-                    <p>Your cart is empty</p>
-                    <a href="{{ url_for('dashboard') }}" class="continue-shopping">Continue Shopping</a>
-                </div>
-            {% endif %}
+                
+                <form action="{{ url_for('checkout') }}" method="POST">
+                    <button type="submit" class="checkout-button">Proceed to Checkout</button>
+                </form>
+            </div>
         </div>
+        {% else %}
+        <div class="empty-cart">
+            <div class="empty-cart-content">
+                <div class="cart-icon">
+                    <svg viewBox="0 0 24 24" width="64" height="64">
+                        <path fill="currentColor" d="M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42A0.25,0.25 0 0,1 7.17,14.75C7.17,14.7 7.18,14.66 7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.95,5.34 21,5.17 21,5A1,1 0 0,0 20,4H5.21L4.27,2M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z"/>
+                    </svg>
+                </div>
+                <h2>Your cart is empty</h2>
+                <p>Looks like you haven't added any medicines to your cart yet.</p>
+                <a href="{{ url_for('dashboard') }}" class="return-to-shop">Return to Dashboard</a>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Success - NU Pharmacy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="checkout-container">
+        <h1>Thank You for Your Purchase!</h1>
+        <div class="checkout-section">
+            <div class="order-summary">
+                <p>Your order has been placed successfully.</p>
+                <p>Your cart is now empty.</p>
+            </div>
+            <a href="{{ url_for('dashboard') }}" class="return-home">Return to Home</a>
+        </div>
+    </div>
+</body>
+</html> 

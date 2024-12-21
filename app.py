@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from models import db, User, Medicine
 from forms import RegisterForm, LoginForm
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -120,25 +121,23 @@ def logout():
 @app.route('/cart')
 @login_required
 def cart():
+    cart = session.get('cart', {})
     cart_items = []
     total_sum = 0
     
-    if 'cart' in session:
-        # Get the cart from session
-        cart_dict = session['cart']
-        
-        for medicine_id, quantity in cart_dict.items():
-            medicine = Medicine.query.get(medicine_id)
-            if medicine:
-                cart_items.append({
-                    'id': medicine.id,
-                    'drugname': medicine.drugname,
-                    'price': float(medicine.price),
-                    'quantity': quantity
-                })
-                total_sum += float(medicine.price) * quantity
-
-    return render_template('cart.html', cart_items=cart_items, total_sum=total_sum)
+    for medicine_id, quantity in cart.items():
+        medicine = Medicine.query.get(int(medicine_id))  # Convert ID to int
+        if medicine:
+            item = {
+                'medicine': medicine,
+                'quantity': quantity
+            }
+            cart_items.append(item)
+            total_sum += medicine.price * quantity
+    
+    return render_template('cart.html', 
+                         cart_items=cart_items, 
+                         total_sum=total_sum)
 
 @app.route('/add-to-cart/<int:medicine_id>', methods=['POST'])
 @login_required
@@ -196,39 +195,73 @@ def remove_all(medicine_id):
 @app.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
-    if request.method == 'GET':
-        return render_template('checkout.html')
-        
-    # POST request handling
     cart = session.get('cart', {})
+    if not cart:
+        flash('Your cart is empty')
+        return redirect(url_for('cart'))
     
-    # Check stock availability for all items in cart
-    for item_id, quantity in cart.items():
-        medicine = Medicine.query.get(item_id)
-        if medicine is None:
-            flash(f"Medicine with ID {item_id} not found")
-            return redirect(url_for('cart'))
-            
-        if quantity > medicine.stock:
-            flash(f"Only {medicine.stock} of {medicine.drugname} is left in stock")
-            return redirect(url_for('cart'))
+    cart_items = []
+    total_sum = 0
     
-    # If we get here, all stock checks passed
-    # Now update the stock quantities
-    for item_id, quantity in cart.items():
-        medicine = Medicine.query.get(item_id)
-        medicine.stock -= quantity
-        db.session.add(medicine)
+    for medicine_id, quantity in cart.items():
+        medicine = Medicine.query.get(medicine_id)
+        if medicine:
+            cart_items.append({
+                'medicine': medicine,
+                'quantity': quantity
+            })
+            total_sum += medicine.price * quantity
+    
+    if request.method == 'POST':
+        # If it's a POST request, render the checkout form
+        return render_template('checkout.html', 
+                            cart_items=cart_items, 
+                            total_sum=total_sum)
+    
+    # If it's a GET request, also render the checkout form
+    return render_template('checkout.html', 
+                         cart_items=cart_items, 
+                         total_sum=total_sum)
+
+@app.route('/process_checkout', methods=['POST'])
+@login_required
+def process_checkout():
+    cart = session.get('cart', {})
+    if not cart:
+        flash('Your cart is empty')
+        return redirect(url_for('cart'))
     
     try:
+        # Update stock for each medicine in the cart
+        for medicine_id, quantity in cart.items():
+            medicine = Medicine.query.get(int(medicine_id))
+            if medicine:
+                if medicine.stock < quantity:
+                    flash(f'Sorry, only {medicine.stock} units of {medicine.drugname} available')
+                    return redirect(url_for('cart'))
+                # Decrement the stock
+                medicine.stock -= quantity
+                db.session.add(medicine)
+        
+        # Commit the stock updates
         db.session.commit()
-        # Clear the cart after successful checkout
+        
+        # Clear the cart
         session.pop('cart', None)
-        return render_template('checkout.html')
+        
+        # Redirect to confirmation page
+        return render_template('order_confirmation.html')
+        
     except Exception as e:
+        # If there's an error, rollback the transaction
         db.session.rollback()
-        flash("Error processing checkout. Please try again.")
-        return redirect(url_for('cart'))
+        flash('An error occurred while placing your order.')
+        return redirect(url_for('checkout'))
+
+@app.route('/order-success')
+@login_required
+def order_success():
+    return render_template('order_success.html')
 
 @app.route('/cart-count')
 def cart_count():
@@ -236,6 +269,35 @@ def cart_count():
     if 'cart' in session:
         count = sum(session['cart'].values())
     return jsonify({'count': count})
+
+@app.route('/place_order', methods=['POST'])
+@login_required
+def place_order():
+    cart = session.get('cart', {})
+    
+    # Update stock for each medicine in the cart
+    for medicine_id, quantity in cart.items():
+        medicine = Medicine.query.get(int(medicine_id))
+        if medicine:
+            # Decrement the stock
+            medicine.stock -= quantity
+            db.session.add(medicine)
+    
+    try:
+        # Commit the stock updates
+        db.session.commit()
+        
+        # Clear the cart
+        session['cart'] = {}
+        
+        # Redirect to confirmation page
+        return render_template('order_confirmation.html')
+    
+    except Exception as e:
+        # If there's an error, rollback the transaction
+        db.session.rollback()
+        flash('An error occurred while placing your order.', 'error')
+        return redirect(url_for('cart'))
 
 if __name__ == '__main__':
     app.run(debug=True)

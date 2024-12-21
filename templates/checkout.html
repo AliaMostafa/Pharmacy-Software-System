@@ -3,56 +3,57 @@
 <head>
     <title>Checkout - NU Pharmacy</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="checkout-container">
+    <div class="checkout-page">
         <h1>Checkout</h1>
-        
-        <div class="checkout-sections">
-            <!-- Shipping Information -->
-            <div class="checkout-section">
+
+        <div class="main-container">
+            <div class="shipping-info">
                 <h2>Shipping Information</h2>
-                <div class="form-group">
-                    <input type="text" placeholder="Full Name" disabled>
-                    <input type="text" placeholder="Address" disabled>
-                    <input type="text" placeholder="City" disabled>
-                    <input type="text" placeholder="Phone Number" disabled>
-                </div>
+                <form action="{{ url_for('process_checkout') }}" method="POST">
+                    <div class="form-group">
+                        <input type="text" name="full_name" placeholder="Full Name" required>
+                        <input type="text" name="address" placeholder="Address" required>
+                        <input type="text" name="city" placeholder="City" required>
+                        <input type="text" name="phone" placeholder="Phone Number" required>
+                    </div>
+
+                    <div class="payment-section">
+                        <h2>Payment Method</h2>
+                        <div class="payment-options">
+                            <div class="payment-option">
+                                <input type="radio" id="credit" name="payment_method" value="credit_card">
+                                <label for="credit">Credit Card</label>
+                            </div>
+                            <div class="payment-option">
+                                <input type="radio" id="debit" name="payment_method" value="debit_card">
+                                <label for="debit">Debit Card</label>
+                            </div>
+                            <div class="payment-option">
+                                <input type="radio" id="cash" name="payment_method" value="cash" checked>
+                                <label for="cash">Cash on Delivery</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="place-order-btn">Place Order</button>
+                </form>
             </div>
 
-            <!-- Payment Method -->
-            <div class="checkout-section">
-                <h2>Payment Method</h2>
-                <div class="payment-options">
-                    <div class="payment-option">
-                        <input type="radio" id="credit" name="payment" disabled>
-                        <label for="credit">Credit Card</label>
-                    </div>
-                    <div class="payment-option">
-                        <input type="radio" id="debit" name="payment" disabled>
-                        <label for="debit">Debit Card</label>
-                    </div>
-                    <div class="payment-option">
-                        <input type="radio" id="cash" name="payment" checked disabled>
-                        <label for="cash">Cash on Delivery</label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Order Summary -->
-            <div class="checkout-section">
+            <div class="order-summary">
                 <h2>Order Summary</h2>
-                <div class="order-summary">
-                    <p>Your order has been placed successfully.</p>
-                    <p>Your cart is now empty.</p>
+                {% for item in cart_items %}
+                <div class="summary-item">
+                    <span>{{ item.medicine.drugname }} x {{ item.quantity }}</span>
+                    <span>{{ "%.1f"|format(item.medicine.price * item.quantity) }} EGP</span>
+                </div>
+                {% endfor %}
+                <div class="total">
+                    <span>Total:</span>
+                    <span>{{ "%.1f"|format(total_sum) }} EGP</span>
                 </div>
             </div>
-        </div>
-
-        <!-- Return Home Button -->
-        <div class="checkout-actions">
-            <a href="{{ url_for('dashboard') }}" class="return-home">Return to Home</a>
         </div>
     </div>
 </body>
