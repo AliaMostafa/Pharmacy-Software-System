@@ -20,6 +20,7 @@
                         <p>Price: {{ item.price }} EGP</p>
                         <p>Quantity: x{{ item.quantity }}</p>
                         <p>Subtotal: {{ "%.1f"|format(item.price * item.quantity) }} EGP</p>
+                        <p>Available Stock: {{ item.stock }}</p>
                     </div>
                     <div class="item-actions">
                         <a href="{{ url_for('remove_one', medicine_id=item.id) }}" class="remove-one">Remove One</a>
@@ -42,7 +43,9 @@
                         <span>Total</span>
                         <span>{{ total_sum }} EGP</span>
                     </div>
-                    <a href="{{ url_for('checkout') }}" class="checkout">Proceed to Checkout</a>
+                    <form action="{{ url_for('checkout') }}" method="POST">
+                        <button type="submit" class="checkout">Proceed to Checkout</button>
+                    </form>
                 </div>
             {% else %}
                 <div class="empty-cart">

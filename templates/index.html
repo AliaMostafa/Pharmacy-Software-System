@@ -95,6 +95,7 @@
                     </select>
                     
                     <button type="submit" class="apply-filters">Apply Filters</button>
+                    <a href="{{ url_for('dashboard') }}" class="clear-filters">Clear Filters</a>
                 </div>
             </form>
         </div>
@@ -128,12 +129,44 @@
                         <input type="hidden" name="category" value="{{ request.args.get('category', '') }}">
                         <input type="hidden" name="price" value="{{ request.args.get('price', '') }}">
                         <input type="hidden" name="form" value="{{ request.args.get('form', '') }}">
-                        <button type="submit" class="add-to-cart">Add to Cart</button>
+                        <button type="submit" class="add-to-cart-btn">
+                            Add to Cart
+                            {% if 'cart' in session and medicine.id|string in session['cart'] %}
+                                <span class="cart-quantity-badge">{{ session['cart'][medicine.id|string] }}</span>
+                            {% endif %}
+                        </button>
                     </form>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
+
+    <!-- Add this at the bottom of the body, before closing </body> tag -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+    function showToast(message) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        // Remove the toast after animation completes
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
+    // Check for flash messages on page load
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                showToast("{{ message }}");
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    </script>
 </body>
 </html>
