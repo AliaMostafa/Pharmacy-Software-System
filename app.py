@@ -11,7 +11,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:new_password@loca
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your-secret-key'
 
-# Initialize extensions
+
 db.init_app(app)  # Initialize db with app
 login_manager = LoginManager()
 login_manager.init_app(app)
