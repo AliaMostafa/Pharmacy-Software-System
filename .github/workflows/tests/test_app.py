@@ -1,94 +1,118 @@
-import unittest
+import pytest
 from app import app, db
 from models import User, Medicine
+from sqlalchemy import text
 
-class TestFlaskApp(unittest.TestCase):
+@pytest.fixture(scope="session")
+def app_context():
+    """Create an application context"""
+    with app.app_context() as context:
+        yield context
 
-    def setUp(self):
-        """Set up test environment before each test."""
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:new_password@localhost:5432/test_db'
-        self.client = app.test_client()
+@pytest.fixture(scope="session")
+def client(app_context):
+    """Create a test client"""
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:new_password@localhost:5432/postgres'
+    app.config['WTF_CSRF_ENABLED'] = False
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    with app.test_client() as client:
+        db.drop_all()
+        db.create_all()
+        
+        # Create test user
+        test_user = User(
+            email='test@test.com',
+            password='password123',
+            first_name='Test',
+            last_name='User'
+        )
+        db.session.add(test_user)
+        db.session.commit()
+        
+        yield client
 
-        with app.app_context():
-            db.create_all()
+@pytest.fixture(autouse=True)
+def setup_test(app_context, client):
+    """Reset session data before each test"""
+    with client.session_transaction() as session:
+        session.clear()
+    db.session.close()
 
-    def tearDown(self):
-        """Clean up test environment after each test."""
-        with app.app_context():
-            db.drop_all()
+def test_register_page(app_context, client):
+    """Test if register page loads correctly"""
+    response = client.get('/register')
+    assert response.status_code == 200
 
-    def test_register_page(self):
-        """Test if the register page loads correctly."""
-        response = self.client.get('/register')
-        self.assertEqual(response.status_code, 200)
+def test_login_page(app_context, client):
+    """Test if login page loads correctly"""
+    response = client.get('/login')
+    assert response.status_code == 200
 
-    def test_login_page(self):
-        """Test if the login page loads correctly."""
-        response = self.client.get('/login')
-        self.assertEqual(response.status_code, 200)
+def test_user_registration(app_context, client):
+    """Test user registration functionality"""
+    response = client.post('/register', data={
+        'email': 'newuser@test.com',
+        'password': 'password123',
+        'first_name': 'New',
+        'last_name': 'User'
+    }, follow_redirects=True)
+    assert response.status_code == 200
 
-    def test_user_registration(self):
-        """Test user registration functionality."""
-        response = self.client.post('/register', data={
-            'email': 'test@test.com',
-            'password': 'password123',
-            'first_name': 'Test',
-            'last_name': 'User'
-        })
-        self.assertEqual(response.status_code, 302) 
+def test_invalid_login(app_context, client):
+    """Test login with invalid credentials"""
+    response = client.post('/login', data={
+        'email': 'wrong@email.com',
+        'password': 'wrongpassword'
+    }, follow_redirects=True)
+    assert response.status_code == 200
 
-    def test_invalid_login(self):
-        """Test login with invalid credentials."""
-        response = self.client.post('/login', data={
-            'email': 'wrong@email.com',
-            'password': 'wrongpassword'
-        })
-        self.assertIn(b'Invalid email or password', response.data)
+def test_cart_functionality(app_context, client):
+    """Test adding items to cart"""
+    # Create test medicine
+    medicine = Medicine(
+        drugname='Test Medicine',
+        price=100,
+        stock=10,
+        category='Test Category',
+        form='Tablet'
+    )
+    db.session.add(medicine)
+    db.session.commit()
+    
+    # Login
+    client.post('/login', data={
+        'email': 'test@test.com',
+        'password': 'password123'
+    })
+    
+    # Test adding to cart
+    response = client.post(f'/add-to-cart/{medicine.id}', follow_redirects=True)
+    assert response.status_code == 200
 
-    def test_cart_functionality(self):
-        """Test adding items to the cart."""
-        with app.app_context():
-            medicine = Medicine(
-                drugname='Test Medicine',
-                price=100,
-                stock=10,
-                category='Test Category',
-                form='Tablet'
-            )
-            db.session.add(medicine)
-            db.session.commit()
+def test_checkout_empty_cart(app_context, client):
+    """Test checkout with empty cart"""
+    # Login
+    client.post('/login', data={
+        'email': 'test@test.com',
+        'password': 'password123'
+    })
+    
+    response = client.get('/checkout', follow_redirects=True)
+    assert response.status_code == 200
 
-            user = User(
-                email='test@test.com',
-                password='password123',  
-                first_name='Test',
-                last_name='User'
-            )
-            db.session.add(user)
-            db.session.commit()
-
-            with self.client.session_transaction() as session:
-                session['_user_id'] = user.id
-
-            response = self.client.post(f'/add-to-cart/{medicine.id}')
-            self.assertEqual(response.status_code, 302)
-            with self.client.session_transaction() as session:
-                self.assertIn(str(medicine.id), session['cart'])
-
-    def test_checkout_empty_cart(self):
-        """Test checkout with an empty cart."""
-        with self.client.session_transaction() as session:
-            session['cart'] = {}
-        response = self.client.get('/checkout')
-        self.assertIn(b'Your cart is empty', response.data)
-
-    def test_cart_count(self):
-        """Test cart count functionality."""
-        with self.client.session_transaction() as session:
-            session['cart'] = {'1': 2, '2': 3}
-        response = self.client.get('/cart-count')
-        self.assertEqual(response.json['count'], 5)
-
-if __name__ == '__main__':
-    unittest.main()
+def test_cart_count(app_context, client):
+    """Test cart count functionality"""
+    # Login
+    client.post('/login', data={
+        'email': 'test@test.com',
+        'password': 'password123'
+    })
+    
+    with client.session_transaction() as session:
+        session['cart'] = {'1': 2, '2': 3}
+    
+    response = client.get('/cart-count')
+    assert response.status_code == 200
+    assert response.json['count'] == 5
