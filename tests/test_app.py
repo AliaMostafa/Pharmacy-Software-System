@@ -32,6 +32,22 @@ def client(app_context):
         
         yield client
 
+import pytest
+from app import create_app, db
+
+@pytest.fixture
+def test_app():
+    app = create_app()
+    app.config.update({
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:postgres@localhost:5432/postgres3.0",
+    })
+    with app.app_context():
+        db.create_all()  # Create test database tables
+    yield app
+    with app.app_context():
+        db.drop_all()  # Clean up test database
+
 def test_1_user_registration(app_context, client):
     """
     Test: User Registration System
