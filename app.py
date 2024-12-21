@@ -7,11 +7,11 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Configure app
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:new_password@localhost:5432/s'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:new_password@localhost:5432/postgres3.0'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'your-secret-key'
 
-
+# Initialize extensions
 db.init_app(app)  # Initialize db with app
 login_manager = LoginManager()
 login_manager.init_app(app)
