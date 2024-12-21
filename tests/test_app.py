@@ -1,3 +1,10 @@
+import os
+import sys
+
+# Add the project root directory to Python path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+
 import pytest
 from app import app, db
 from models import User, Medicine
@@ -18,7 +25,17 @@ def client(app_context):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     with app.test_client() as client:
-        db.drop_all()
+        # Drop tables in correct order
+        db.session.execute(text('''
+            DROP TABLE IF EXISTS medical_log CASCADE;
+            DROP TABLE IF EXISTS cart CASCADE;
+            DROP TABLE IF EXISTS products CASCADE;
+            DROP TABLE IF EXISTS users CASCADE;
+            DROP TABLE IF EXISTS alembic_version CASCADE;
+        '''))
+        db.session.commit()
+        
+        # Create tables
         db.create_all()
         
         # Create test user
@@ -32,6 +49,16 @@ def client(app_context):
         db.session.commit()
         
         yield client
+        
+        # Cleanup after all tests
+        db.session.execute(text('''
+            DROP TABLE IF EXISTS medical_log CASCADE;
+            DROP TABLE IF EXISTS cart CASCADE;
+            DROP TABLE IF EXISTS products CASCADE;
+            DROP TABLE IF EXISTS users CASCADE;
+            DROP TABLE IF EXISTS alembic_version CASCADE;
+        '''))
+        db.session.commit()
 
 @pytest.fixture(autouse=True)
 def setup_test(app_context, client):
