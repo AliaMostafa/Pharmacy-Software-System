@@ -17,7 +17,7 @@ def app_context():
 @pytest.fixture(scope="session")
 def client(app_context):
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:new_password@localhost:5432/postgres'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost:5432/FinalAttemptDB'
     app.config['WTF_CSRF_ENABLED'] = False
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
