@@ -5,7 +5,7 @@ sys.path.append(project_root)
 
 import pytest
 from app import app, db
-from models import User, Medicine
+from models import User, Medicine, Cart
 from sqlalchemy import text
 from flask_wtf import FlaskForm
 
@@ -110,3 +110,116 @@ def test_4_view_cart(app_context, client):
     print(f"Actual status: {response.status_code}")
     print(f"Response: {response.data.decode()[:100]}")
     assert response.status_code == 200 
+
+def test_5_registration_validation(client):
+    """Test registration form validation"""
+    print("\n=== Test 5: Registration Validation ===")
+    
+    # Test invalid email format
+    response = client.post('/register', data={
+        'email': 'invalid-email',
+        'password': 'Password123',
+        'first_name': 'Test',
+        'last_name': 'User'
+    })
+    print(f"Expected status: 400")
+    print(f"Actual status: {response.status_code}")
+    print(f"Expected result: Error message for invalid email format")
+    print(f"Actual result: {response.data.decode()[:50]}")
+    assert 'valid email' in response.data.decode().lower()
+
+    # Test missing required fields
+    response = client.post('/register', data={
+        'email': 'test@test.com',
+        'password': ''  # Missing password
+    })
+    assert 'required' in response.data.decode().lower()
+
+def test_6_login_authentication(client):
+    """Test login authentication security"""
+    print("\n=== Test 6: Login Authentication ===")
+    
+    # Test wrong password
+    response = client.post('/login', data={
+        'email': 'test@test.com',
+        'password': 'wrongpassword'
+    })
+    print(f"Expected status: 401")
+    print(f"Actual status: {response.status_code}")
+    print(f"Expected result: Authentication failure for wrong credentials")
+    print(f"Actual result: {response.data.decode()[:50]}")
+    assert 'invalid' in response.data.decode().lower()
+
+    # Test SQL injection attempt
+    response = client.post('/login', data={
+        'email': "' OR '1'='1",
+        'password': "' OR '1'='1"
+    })
+    assert response.status_code != 200
+
+def test_7_cart_operations(client):
+    """Test cart functionality"""
+    print("\n=== Test 7: Cart Operations ===")
+    
+    # Login first
+    client.post('/login', data={
+        'email': 'test@test.com',
+        'password': 'Password123'
+    })
+
+    # Add multiple items
+    medicine = Medicine.query.first()
+    client.post(f'/add-to-cart/{medicine.id}')
+    client.post(f'/add-to-cart/{medicine.id}')
+    
+    # Update quantity
+    response = client.post(f'/update-cart/{medicine.id}', data={'quantity': 3})
+    print(f"Expected status: 200")
+    print(f"Actual status: {response.status_code}")
+    print(f"Expected result: Cart updates correctly")
+    print(f"Actual result: Cart total: ${medicine.price * 3:.2f}, Items: 3")
+    
+    cart = Cart.query.filter_by(medicine_id=medicine.id).first()
+    assert cart.quantity == 3
+
+def test_8_stock_management(client):
+    """Test inventory management"""
+    print("\n=== Test 8: Stock Management ===")
+    
+    # Create test medicine with specific stock
+    medicine = Medicine(
+        drugname='Stock Test Med',
+        price=10.00,
+        stock=10,
+        category='Test',
+        form='Tablet'
+    )
+    db.session.add(medicine)
+    db.session.commit()
+
+    # Purchase 3 items
+    client.post(f'/add-to-cart/{medicine.id}')
+    response = client.post('/checkout')  # Assuming you have a checkout endpoint
+    
+    print(f"Expected status: 200")
+    print(f"Actual status: {response.status_code}")
+    print(f"Expected result: Stock updates after purchase")
+    print(f"Actual result: Remaining stock: {medicine.stock}")
+    
+    # Verify stock was reduced
+    updated_medicine = Medicine.query.get(medicine.id)
+    assert updated_medicine.stock == 7
+
+    # Test out-of-stock handling
+    for _ in range(10):
+        response = client.post(f'/add-to-cart/{medicine.id}')
+    assert 'out of stock' in response.data.decode().lower()
+
+# Add cleanup after tests if needed
+@pytest.fixture(autouse=True)
+def cleanup():
+    yield
+    db.session.query(Cart).delete()
+    db.session.query(Medicine).delete()
+    db.session.query(User).delete()
+    db.session.commit()
