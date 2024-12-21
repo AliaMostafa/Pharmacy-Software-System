@@ -7,6 +7,7 @@ import pytest
 from app import app, db
 from models import User, Medicine
 from sqlalchemy import text
+from flask_wtf import FlaskForm
 
 @pytest.fixture(scope="session")
 def app_context():
