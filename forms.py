@@ -3,6 +3,9 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from models import db, User, Medicine
 from forms import RegisterForm, LoginForm
 from datetime import datetime
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Email, Length
 
 app = Flask(__name__)
 
