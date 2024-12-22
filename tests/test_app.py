@@ -9,29 +9,34 @@ from app.models import User, Medicine, Cart
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def test_app():
-    """Set up a test Flask application."""
-    app = create_app()
-    app.config.update({
+    """Create and configure a new app instance for each test."""
+    app = create_app({
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:new_password@localhost:5432/postgres3.0",
         "WTF_CSRF_ENABLED": False,
-        "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+        "SECRET_KEY": "test_key"
     })
+    
+    # Create application context
     with app.app_context():
         db.create_all()
         yield app
         db.session.remove()
         db.drop_all()
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def client(test_app):
-    """Provide a test client."""
     return test_app.test_client()
 
+@pytest.fixture(scope='function')
+def app_context(test_app):
+    with test_app.app_context():
+        yield
+
 @pytest.fixture(autouse=True)
-def cleanup():
+def cleanup(app_context):
     """Clean up database after each test."""
     yield
     db.session.query(Cart).delete()
@@ -75,7 +80,7 @@ def test_add_to_cart(client):
     """Test adding an item to the cart."""
     # Create test medicine
     medicine = Medicine(
-        drugname='Test Medicine',
+        name='Test Medicine',
         price=100,
         stock=10,
         category='Test Category',

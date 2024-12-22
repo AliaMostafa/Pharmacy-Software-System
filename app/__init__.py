@@ -23,8 +23,8 @@ def create_app(test_config=None):
     login_manager.init_app(app)
     
     with app.app_context():
-        # Import routes here to avoid circular imports
-        from . import routes
+        from app import routes
+        routes.init_routes(app)  # Initialize routes
         db.create_all()
     
     return app

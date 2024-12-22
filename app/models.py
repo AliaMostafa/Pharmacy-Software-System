@@ -12,6 +12,8 @@ class Medicine(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, nullable=False)
+    category = db.Column(db.String(50), nullable=False)
+    form = db.Column(db.String(50), nullable=False)
 
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
