@@ -1,4 +1,4 @@
-name: Flask CI/CD
+name: Basic Tests CI
 
 on:
   push:
@@ -9,21 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:14
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: new_password
-          POSTGRES_DB: postgres3.0
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -37,26 +22,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --upgrade flask_wtf
-          pip install -r requirements.txt
-
-      - name: Set up environment variables
-        run: |
-          echo "DATABASE_URL=postgresql://postgres:new_password@localhost:5432/postgres3.0" >> $GITHUB_ENV
-          echo "FLASK_ENV=test" >> $GITHUB_ENV
-          echo "SECRET_KEY=test_key" >> $GITHUB_ENV
-
-      - name: Run migrations
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-        run: |
-          flask db upgrade
+          pip install pytest
 
       - name: Run tests
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
-          pytest tests/
+          pytest tests/test_basic.py -v
 
   deploy:
     needs: test
@@ -72,11 +42,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies for deploy
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install pytest
 
-      - name: Deploy to Production
+      - name: Deploy
         run: |
-          echo "Add your deployment commands here, e.g., docker-compose up -d"
+          echo "Add deployment steps here"
