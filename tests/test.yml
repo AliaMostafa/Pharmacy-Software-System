@@ -37,11 +37,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install --upgrade flask_wtf
           pip install -r requirements.txt
 
       - name: Set up environment variables
         run: |
-          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/test_db" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgresql://postgres:new_password@localhost:5432/postgres3.0" >> $GITHUB_ENV
           echo "FLASK_ENV=test" >> $GITHUB_ENV
           echo "SECRET_KEY=test_key" >> $GITHUB_ENV
 
