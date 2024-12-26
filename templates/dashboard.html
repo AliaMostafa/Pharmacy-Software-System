@@ -1,0 +1,17 @@
+<div class="dropdown">
+    <a href="#" class="profile-icon" onclick="toggleProfileMenu(event)">
+        <i class="bi bi-person-circle"></i>
+    </a>
+    <div class="dropdown-menu shadow-sm" id="profileMenu">
+        <div class="p-2 bg-light">
+            <i class="bi bi-person-circle"></i>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a href="#" class="dropdown-item">
+            <i class="bi bi-person"></i> Profile
+        </a>
+        <a href="{{ url_for('logout') }}" class="dropdown-item">
+            <i class="bi bi-box-arrow-right"></i> Log Out
+        </a>
+    </div>
+</div> 

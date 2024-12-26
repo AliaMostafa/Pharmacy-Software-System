@@ -6,12 +6,11 @@ db = SQLAlchemy()
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
-    __table_args__ = {'schema': 'public'}
-
-    email = db.Column(db.String(120), primary_key=True)
-    first_name = db.Column(db.String(80), nullable=False)
-    last_name = db.Column(db.String(80), nullable=False)
-    password = db.Column(db.String(128), nullable=False)
+    
+    email = db.Column(db.String(255), primary_key=True)
+    first_name = db.Column(db.String(255), nullable=False)
+    last_name = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __init__(self, email, first_name, last_name, password):
@@ -22,7 +21,7 @@ class User(db.Model, UserMixin):
         self.created_at = datetime.utcnow()
 
     def get_id(self):
-        return str(self.email)
+        return self.email
 
 class Medicine(db.Model):
     __tablename__ = 'products'

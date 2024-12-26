@@ -6,23 +6,54 @@
     <title>NU Pharmacy</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('dashboard') }}">NU Pharmacy</a>
-            <div class="navbar-nav ms-auto">
-                {% if 'user_id' in session %}
-                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='images/nu-pharmacy-logo.png') }}" alt="NU Pharmacy" class="logo" height="40">
+            </a>
+            <div class="d-flex align-items-center gap-2">
+                {% if current_user.is_authenticated %}
+                    {% if request.endpoint == 'profile' %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                            <i class="bi bi-arrow-left-circle"></i> Return to Dashboard
+                        </a>
+                    {% endif %}
+                    <div class="dropdown">
+                        <button class="btn btn-link text-decoration-none dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle" style="font-size: 1.5rem; color: #0066cc;"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                            <li>
+                                <div class="dropdown-header">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-person-circle"></i>
+                                        <div>
+                                            <div class="fw-bold">{{ current_user.first_name }} {{ current_user.last_name }}</div>
+                                            <small class="text-muted">{{ current_user.email }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person"></i> My Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Log Out</a></li>
+                        </ul>
+                    </div>
+                    <a href="{{ url_for('cart') }}" class="btn btn-primary position-relative">
+                        <i class="bi bi-cart"></i> Cart
+                        {% if session['cart']|length > 0 %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ session['cart']|length }}
+                            </span>
+                        {% endif %}
+                    </a>
                 {% else %}
-                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                    <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-link text-decoration-none">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-link text-decoration-none">Register</a>
                 {% endif %}
-            </div>
-            <div class="cart-section">
-                <a href="{{ url_for('cart') }}" class="cart-btn">
-                    🛒 Cart (<span id="cart-count">{{ session.get('cart', [])|length }}</span>)
-                </a>
             </div>
         </div>
     </nav>

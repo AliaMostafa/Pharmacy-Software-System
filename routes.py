@@ -20,4 +20,9 @@ def login():
         pass
     return render_template('login.html', form=form)
 
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')
+
 # Add other routes as needed 

@@ -9,7 +9,7 @@ app = Flask(__name__)
 # Configure app
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:new_password@localhost:5432/postgres3.0'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'your-secret-key'
+app.secret_key = 'new_password'
 
 # Initialize extensions
 db.init_app(app)  # Initialize db with app
@@ -24,20 +24,23 @@ def load_user(user_id):
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        # Get the complete form data
         email = request.form.get('email')
         password = request.form.get('password')
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
+        first_name = request.form.get('first_name').strip()  # Added strip() to remove any whitespace
+        last_name = request.form.get('last_name').strip()    # Added strip() to remove any whitespace
 
+        # Check if user already exists
         if User.query.filter_by(email=email).first():
             flash('Email already registered')
             return render_template('register.html')
 
+        # Create new user with complete names
         new_user = User(
             email=email,
-            first_name=first_name,
-            last_name=last_name,
-            password=password
+            password=password,  # In production, make sure to hash the password
+            first_name=first_name,  # This will now save the complete first name
+            last_name=last_name     # This will now save the complete last name
         )
 
         try:
@@ -47,7 +50,7 @@ def register():
             return redirect(url_for('login'))
         except Exception as e:
             db.session.rollback()
-            print(str(e))  # For debugging
+            print(f"Registration error: {str(e)}")  # For debugging
             flash('An error occurred. Please try again.')
             return render_template('register.html')
 
@@ -298,6 +301,47 @@ def place_order():
         db.session.rollback()
         flash('An error occurred while placing your order.', 'error')
         return redirect(url_for('cart'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    # Get user by email from the database
+    user = User.query.filter_by(email=current_user.email).first()
+    return render_template('profile.html', user=user)
+
+@app.route('/verify_password', methods=['POST'])
+@login_required
+def verify_password():
+    data = request.get_json()
+    current_password = data.get('current_password')
+    user = User.query.filter_by(email=current_user.email).first()
+    
+    if user and user.password == current_password:  # In production, use proper password hashing
+        return jsonify({'valid': True})
+    return jsonify({'valid': False})
+
+@app.route('/change_password', methods=['POST'])
+@login_required
+def change_password():
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    
+    user = User.query.filter_by(email=current_user.email).first()
+    
+    if not user or user.password != current_password:
+        flash('Current password is incorrect', 'error')
+        return redirect(url_for('profile'))
+        
+    if new_password != confirm_password:
+        flash('New passwords do not match', 'error')
+        return redirect(url_for('profile'))
+        
+    user.password = new_password
+    db.session.commit()
+    
+    flash('Password successfully changed', 'success')
+    return redirect(url_for('profile'))
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Toast container for notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Password changed successfully!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    
+    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Current password is incorrect!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Rest of your existing profile content -->
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>My Profile</h3>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label>First Name</label>
+                </div>
+                <div class="col-md-9">
+                    {{ user.first_name }}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label>Last Name</label>
+                </div>
+                <div class="col-md-9">
+                    {{ user.last_name }}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label>Email</label>
+                </div>
+                <div class="col-md-9">
+                    {{ user.email }}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h4>Change Password</h4>
+                <div id="step1">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                        <button type="button" class="btn btn-primary mt-2" onclick="verifyPassword()">Verify Password</button>
+                    </div>
+                </div>
+
+                <form id="passwordForm" method="POST" action="{{ url_for('change_password') }}" style="display: none;">
+                    <input type="hidden" id="currentPasswordHidden" name="current_password">
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" name="new_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Replace the toast container with this alert -->
+<div id="errorAlert" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none; position: fixed; top: 20px; right: 20px; z-index: 1050;">
+    Password is incorrect!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div id="successAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none; position: fixed; top: 20px; right: 20px; z-index: 1050;">
+    Password successfully changed
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<script>
+// Function to show toast messages
+function showToast(type) {
+    const toast = new bootstrap.Toast(document.getElementById(type + 'Toast'), {
+        autohide: true,
+        delay: 3000
+    });
+    toast.show();
+}
+
+async function verifyPassword() {
+    const currentPassword = document.getElementById('currentPassword').value;
+    
+    const response = await fetch('/verify_password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            current_password: currentPassword
+        })
+    });
+    
+    const result = await response.json();
+    
+    if (result.valid) {
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('passwordForm').style.display = 'block';
+        document.getElementById('currentPasswordHidden').value = currentPassword;
+    } else {
+        // Create and show the error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert-message';
+        errorDiv.innerHTML = `
+            <div class="alert-content">
+                Password is incorrect!
+                <button type="button" class="close-btn" onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+        document.body.appendChild(errorDiv);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 3000);
+        
+        document.getElementById('currentPassword').value = '';
+    }
+}
+
+document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const newPass = document.getElementById('newPassword').value;
+    const confirmPass = document.getElementById('confirmPassword').value;
+    
+    if (!newPass || !confirmPass) {
+        alert('Please fill in both password fields');
+        return;
+    }
+    
+    if (newPass !== confirmPass) {
+        alert('New passwords do not match');
+        return;
+    }
+    
+    this.submit();
+});
+
+// Show success toast if password was changed successfully
+{% if 'Password successfully changed' in get_flashed_messages() %}
+    showToast('success');
+{% endif %}
+</script>
+
+<style>
+.alert-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+    animation: slideIn 0.3s ease-out;
+}
+
+.alert-content {
+    background-color: white;
+    border-left: 4px solid #dc3545;
+    padding: 16px 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 300px;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    padding: 0 0 0 16px;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+</style>
+{% endblock %} 
